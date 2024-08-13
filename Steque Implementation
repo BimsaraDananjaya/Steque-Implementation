@@ -1,0 +1,147 @@
+public class Steque<Item> implements Iterable<Item> {
+    private int N;
+    private Node first;
+    private Node last;
+
+    private class Node {
+        private Item item;
+        private Node next;
+        private Node prev;
+    }
+
+    /**
+     * create an empty steque
+     */
+    public Steque() {
+        N = 0;
+        first = null;
+        last = null;
+    }
+
+    /**
+     * pop (return) the first item on top of stack and modify first
+     * accordingly to refer to next node.
+     */
+    public Item pop() {
+        if (isEmpty()) throw new RuntimeException("Steque underflow");
+        Item item = first.item;
+        first = first.next;
+        N--;
+        return item;
+    }
+
+    /**
+     * push item on top of the stack and modify the first pointer
+     * to refer to the newly added item.
+     */
+    public void push(Item item) {
+        Node oldfirst = first;
+        Node first = new Node();
+        first.item = item;
+        first.next = oldfirst;
+        if (oldfirst != null)
+            oldfirst.prev = first;
+        ++N;
+    }
+
+    /**
+     * push item on bottom of the stack and reset the last pointer
+     * to refer to the newly added item.
+     */
+    public void enqueue(Item item) {
+        Node oldlast = last;
+        Node last = new Node();
+        last.item = item;
+        last.prev = oldlast;
+        if (oldlast != null)
+            oldlast.next = last;
+        ++N;
+    }
+
+    public Item peek() {
+        if (isEmpty()) throw new RuntimeException("Steque underflow");
+        return first.item;
+    }
+
+    public boolean isEmpty() {
+        return N == 0;
+    }
+
+    public int size() {
+        return N;
+    }
+
+    /**
+     *  prints the steque from top to bottom
+
+    private void printState() {
+        System.out.println("Printing steque below: top --> bottom ");
+        for (Node idx = this.first; idx!= null; idx = idx.next) {
+            System.out.print(idx.item + " - ");
+        }
+        System.out.println();
+    }
+    */
+
+    public String toString() {
+        StringBuilder s = new StringBuilder();
+        for (Item i : this) {
+            s.append(i + " ");
+        }
+        return s.toString().trim();
+    }
+
+    public Iterator iterator() {
+        return new LIFOIterator();
+    }
+
+    /**
+     * iterator that implements hasNext(), next(), and remove().
+     */
+    private class LIFOIterator implements Iterator<Item>
+    {   // support LIFO iteration
+        private Node current = first;
+        public boolean hasNext() { return current.next != null; }
+        public void remove() {
+            Node n = first;
+            while (n.next.next != null) {
+                n = n.next;
+            }
+            n.next = null;
+            --N;
+        }
+
+        public Item next() {
+            if (!hasNext()) 
+                throw new NoSuchElementException();
+            Item item = current.item;
+            current = current.next;
+            return item;
+        }
+    }
+
+    /**
+     * a simple test client
+     */
+    public static void main(String[] args) {
+        Steque<String> steq = new Steque<String>();
+        while (!StdIn.isEmpty()) {
+            String item = StdIn.readString();
+            if (!item.equals("-")) {
+                //steq.push(item);
+                steq.enqueue(item);
+            }
+            /*
+            else if (!steq.isEmpty()) {
+                System.out.print(steq.pop() + " ");
+            }
+            */
+        }
+        System.out.println("(" + steq.size() + " left on steque)");
+        Iterator itr = steq.iterator();
+        System.out.println("printing steque of strins below: ");
+        while(itr.hasNext()) {
+            System.out.print(itr.next() + " ");
+        }
+    }
+}
